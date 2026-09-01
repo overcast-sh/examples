@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# CDK (compiled output of app/stack .ts files; hand-written .js below is kept)
+cdk.out/
+cdk/.cdk.staging/
+cdk/bin/*.js
+cdk/bin/*.d.ts
+cdk/lib/*.js
+cdk/lib/*.d.ts
+cdk/test/*.js
+cdk/test/*.d.ts
+
+# Local Overcast bootstrap state (see docs/cdk/local-vpc.md upstream)
+.overcast/
+
+# CDK context lookup cache — a local cache, not desired state; see
+# docs/cdk/local-vpc.md's "do not commit local lookup context" guidance.
+cdk/cdk.context.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
