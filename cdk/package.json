@@ -1,0 +1,30 @@
+{
+  "name": "cdk-showcase",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "AWS CDK app showcasing Overcast (ghcr.io/overcast-sh/overcast) — deploy a serverless API, an event pipeline, storage, and networking stack against the local emulator.",
+  "bin": {
+    "cdk-showcase": "bin/cdk-showcase.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "synth": "cdk synth --all",
+    "bootstrap": "node scripts/with-overcast-env.js cdk bootstrap aws://000000000000/us-east-1",
+    "deploy": "node scripts/with-overcast-env.js cdk deploy --require-approval never",
+    "deploy:all": "node scripts/with-overcast-env.js cdk deploy --all --require-approval never",
+    "destroy": "node scripts/with-overcast-env.js cdk destroy --force",
+    "destroy:all": "node scripts/with-overcast-env.js cdk destroy --all --force"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "aws-cdk": "2.1139.0",
+    "ts-node": "^10.9.0",
+    "typescript": "~5.6.0"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.170.0",
+    "constructs": "^10.0.0"
+  }
+}
