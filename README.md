@@ -18,10 +18,14 @@ More examples (non-CDK SDK usage, Terraform, etc.) can live alongside `cdk/` as 
 **1. Start Overcast** (full image, with the web console):
 
 ```bash
-docker run --rm -p 4566:4566 -p 4567:4567 ghcr.io/overcast-sh/overcast:latest
+docker run --rm -p 4566:4566 -p 4567:4567 \
+  -e OVERCAST_HOSTNAME=localhost.overcast.sh \
+  ghcr.io/overcast-sh/overcast:latest
 ```
 
 Leave this running in its own terminal. The AWS API is now live at `http://localhost:4566`, and the web console — useful for browsing whatever the examples below create — is at [http://localhost:4567](http://localhost:4567).
+
+`OVERCAST_HOSTNAME=localhost.overcast.sh` is required for CDK asset publishing: CDK's S3 asset publisher addresses buckets virtual-hosted style (`<bucket>.<host>`), and without a hostname Overcast recognizes for that rewrite, the publish step fails — Overcast warns about this at startup if it's missing. `localhost.overcast.sh` is a public wildcard-DNS domain that resolves to `127.0.0.1` on every OS, no hosts-file edits needed; see [`cdk/README.md`](./cdk/README.md#pointing-cdk-at-overcast).
 
 **2. Install and deploy the CDK example**:
 
@@ -58,9 +62,11 @@ See [`cdk/README.md`](./cdk/README.md) for a full description of each stack. In 
 | Stack                  | Demonstrates                                                                                   |
 | ----------------------- | ------------------------------------------------------------------------------------------------ |
 | `ServerlessApiStack`   | API Gateway + Lambda + DynamoDB — a small CRUD notes API.                                       |
-| `EventPipelineStack`   | SNS → SQS (+ DLQ) → Lambda, fed by both an EventBridge rule and a Scheduler schedule.           |
+| `EventPipelineStack`   | SNS → SQS (+ DLQ) → Lambda, fed by an EventBridge rule and (opt-in, `-c scheduler=true`) a Scheduler schedule. |
 | `StorageStack`         | S3: a versioned bucket, a bucket with lifecycle rules, and explicit bucket policies.             |
 | `NetworkStack`         | A VPC (public + private subnets across two AZs), a security group, and an EC2 instance.         |
+
+Real Lambda execution and sample-data seeding are both optional extras — see [`cdk/README.md`](./cdk/README.md#real-lambda-execution-optional).
 
 ## License
 
