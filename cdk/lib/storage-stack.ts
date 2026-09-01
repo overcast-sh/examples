@@ -13,12 +13,15 @@ import { baseStackProps } from "./overcast-env";
  *
  * Note: this stack deliberately does not seed either bucket with
  * `aws-cdk-lib/aws-s3-deployment`'s BucketDeployment. That construct's
- * custom resource invokes a Lambda to run the actual sync, and per overcast
- * docs/cdk.md § Limitations, custom resource invocation requires Docker —
- * without it the handler degrades to a stub physical ID and no objects are
- * actually written. Rather than depend on the deploying machine having
- * Docker wired up for CloudFormation custom resources, this stack ships
- * empty buckets; upload with `aws s3 cp` after deploying instead.
+ * custom resource invokes a Lambda to run the actual sync — per overcast
+ * docs/cdk.md § Limitations, `Custom::*` / `AWS::CloudFormation::CustomResource`
+ * types execute the `ServiceToken` Lambda for real when Docker is available
+ * to the Overcast container (`-v /var/run/docker.sock:/var/run/docker.sock`,
+ * see cdk/README.md § Real Lambda execution), and degrade gracefully to a
+ * stub physical ID — no objects written, but the stack still deploys —
+ * without it. Rather than make this stack's success depend on how it's run,
+ * it ships empty buckets; `npm run seed` populates them afterwards (see
+ * cdk/scripts/seed.mjs), or upload manually with `aws s3 cp`.
  */
 export class StorageStack extends cdk.Stack {
   constructor(scope: Construct, id: string) {
