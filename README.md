@@ -62,7 +62,7 @@ See [`cdk/README.md`](./cdk/README.md) for a full description of each stack. In 
 | Stack                  | Demonstrates                                                                                   |
 | ----------------------- | ------------------------------------------------------------------------------------------------ |
 | `ServerlessApiStack`   | API Gateway + Lambda + DynamoDB — a small CRUD notes API.                                       |
-| `EventPipelineStack`   | SNS → SQS (+ DLQ) → Lambda, fed by an EventBridge rule and (opt-in, `-c scheduler=true`) a Scheduler schedule. |
+| `EventPipelineStack`   | SNS → SQS (+ DLQ) → Lambda, fed by an EventBridge rule and a Scheduler schedule (opt out with `-c scheduler=false`). |
 | `StorageStack`         | S3: a versioned bucket, a bucket with lifecycle rules, and explicit bucket policies.             |
 | `NetworkStack`         | A VPC (public + private subnets across two AZs), a security group, and an EC2 instance.         |
 
