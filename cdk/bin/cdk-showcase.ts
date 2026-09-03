@@ -7,16 +7,14 @@ import { StorageStack } from "../lib/storage-stack";
 
 const app = new cdk.App();
 
-// EventPipelineStack's Scheduler schedule is opt-in (`-c scheduler=true`).
-// As of the `:alpha` image, AWS::Scheduler::Schedule's CloudFormation
-// handler doesn't auto-generate a name when the template omits one — which
-// is exactly what CDK's CfnSchedule does when you don't pass `name` — so the
-// create request 501s and CloudFormation rolls back the *whole* stack (all
-// resources are one unit). Defaulting the flag off keeps
-// `cdk deploy EventPipelineStack` working out of the box; pass
-// `-c scheduler=true` once that gap is fixed upstream. See
-// lib/event-pipeline-stack.ts and cdk/README.md for details.
-const schedulerEnabled = app.node.tryGetContext("scheduler") === "true";
+// EventPipelineStack's Scheduler schedule is on by default. It used to 501
+// and roll back the whole stack — AWS::Scheduler::Schedule's CloudFormation
+// handler didn't auto-generate a name when the template omitted one, which
+// is exactly what CDK's CfnSchedule does when you don't pass `name` — but
+// that's fixed upstream (overcast#1518, shipped in 0.0.1-alpha.39). Pass
+// `-c scheduler=false` to opt back out. See lib/event-pipeline-stack.ts and
+// cdk/README.md for details.
+const schedulerEnabled = app.node.tryGetContext("scheduler") !== "false";
 
 // Four independent stacks — each deployable on its own
 // (`cdk deploy <StackName>`) or all together (`cdk deploy --all`). Shared
