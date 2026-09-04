@@ -1,0 +1,89 @@
+// Dependency automation, run by the hosted Renovate GitHub App that already
+// serves overcast-sh/overcast and overcast-sh/website (website's
+// .github/renovate.json5 is the template for this file).
+//
+// The App runs in Silent mode for this org: it scans every repository but only
+// acts on one that carries its own config, and it never opens an onboarding
+// PR. This repository had been "onboarded" but never "activated" in the Mend
+// portal for that reason. This file is the activation.
+//
+// This is an examples repository, and two things follow from that.
+//
+// There is no CI. A Renovate PR here has no check behind it, so merging one
+// is a judgement call made by reading the diff: does the CDK app still make
+// sense against the new library, and is the pin still one a reader can copy.
+// Nothing is automerged, and the main-branch ruleset requires nothing, so
+// nothing would gate an automerge anyway.
+//
+// The cadence is monthly, not weekly. aws-cdk-lib and the AWS SDK clients
+// release every week, and an example gains nothing from tracking them at
+// that pace; a monthly PR that moves the whole CDK surface at once is a
+// better use of the reviewer's attention than fifty small ones. Security
+// advisories bypass the schedule, so a vulnerable dependency does not wait
+// for the first of the month.
+//
+// The rest is the shared policy: majors are never grouped and arrive as
+// their own PR; nothing younger than seven days is taken; open PRs are kept
+// rebased on `main`; the dependency dashboard issue lists everything pending
+// or deliberately not taken. Commit messages here are plain imperative
+// sentences, so `semanticCommits` is off.
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:recommended'],
+
+  // cdk/package.json is the only dependency surface. There are no workflows;
+  // add `github-actions` here if one ever appears.
+  enabledManagers: ['npm'],
+
+  semanticCommits: 'disabled',
+
+  minimumReleaseAge: '7 days',
+
+  // Every dependency here except the CDK CLI is declared as a caret range,
+  // and Renovate's default for npm ranges is to leave a range alone while
+  // the newest version still satisfies it — which for `^2.170.0` is every
+  // 2.x, so aws-cdk-lib would never produce a PR while the exactly pinned
+  // `aws-cdk` CLI would, and the two would drift apart. `bump` moves the
+  // range's floor to the version actually installed, so the library and the
+  // CLI move in one PR and package.json says what a reader will really get.
+  rangeStrategy: 'bump',
+
+  osvVulnerabilityAlerts: true,
+
+  // Monthly, early on the first, UTC. See the header.
+  schedule: ['* 0-8 1 * *'],
+
+  rebaseWhen: 'behind-base-branch',
+
+  // Folded into the same monthly window, so the transitive pins that no
+  // direct bump reaches advance in the same PR cycle.
+  lockFileMaintenance: {
+    enabled: true,
+    schedule: ['* 0-8 1 * *'],
+  },
+
+  // Later rules override earlier ones, so the catch-all group comes first
+  // and the two named groups after it claim their packages out of it.
+  packageRules: [
+    {
+      matchManagers: ['npm'],
+      matchUpdateTypes: ['minor', 'patch'],
+      groupName: 'npm dependencies (non-major)',
+    },
+    {
+      // The CDK CLI enforces a minimum aws-cdk-lib version it can synth
+      // against, and constructs is the base both are built on. Move the
+      // three together across every update type, majors included, so a PR
+      // never lands a CLI that refuses the library beside it.
+      matchManagers: ['npm'],
+      matchPackageNames: ['aws-cdk', 'aws-cdk-lib', 'constructs'],
+      groupName: 'aws cdk',
+    },
+    {
+      // The SDK v3 clients come out of one monorepo on one version line.
+      matchManagers: ['npm'],
+      matchPackageNames: ['@aws-sdk/**'],
+      groupName: 'aws sdk',
+    },
+  ],
+}
